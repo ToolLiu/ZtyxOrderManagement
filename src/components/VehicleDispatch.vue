@@ -22,6 +22,7 @@
         <button type="submit" class="submit-btn">添加到派单表</button>
       </form>
     </div>
+    <div id="map-container"></div>
   </div>
 </template>
 
@@ -68,8 +69,26 @@ export default {
       } else {
         console.error('提交数据失败');
       }
+    },
+    clickHandler(evt){
+      var lat = evt.latLng.getLat().toFixed(6);
+      var lng = evt.latLng.getLng().toFixed(6);
+      console.log("您点击的的坐标是："+ lat + "," + lng);
     }
-  }
+  },
+  mounted() {
+    //地图初始化函数，本例取名为init
+    var center = new TMap.LatLng(22.600120, 113.846484)
+    //定义map变量，调用 TMap.Map() 构造函数创建地图
+    var map = new TMap.Map(document.getElementById('map-container'), {
+        center: center,//设置地图中心点坐标
+        zoom: 15.2,   //设置地图缩放级别
+        viewMode:'2D',
+        // pitch: 43.5,  //设置俯仰角
+        // rotation: 45    //设置地图旋转角度
+    });
+    map.on("click",this.clickHandler)
+  },
 };
 </script>
 
@@ -140,5 +159,9 @@ input:focus {
 .submit-btn:hover {
   background-color: #0056b3;
 }
-
+#map-container{
+  display: inline-block;
+  width:800px;
+  height:500px;
+}
 </style>

@@ -112,7 +112,7 @@ export default {
   },
   mounted() {
     axios
-      .get(`${this.$base_url}/coal/getCoalMsg`)
+      .get(`${this.$base_url}/coal/admGetCoalMsg`)
       .then((response) => {
         this.coalmsgs = response.data;
         this.loading = false;

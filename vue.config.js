@@ -13,6 +13,7 @@ module.exports = {
       },
     },
   },
-  // publicPath: 'C:/Users/aprez/Desktop/ztrk-adm'
+  // publicPath: 'C:/Users/aprez/Desktop/ztrk-adm',
+  lintOnSave: false  //加入此行 , false为关闭true为开启
 }
 
