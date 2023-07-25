@@ -90,16 +90,6 @@
             user.adm_id == 'SeniorAdmin' ||
             user.adm_id == 'Ceshi'
           "
-          to="/cipher-dispatch"
-          >特殊派单
-        </router-link>
-        <router-link
-          v-if="
-            (user && user.adm_id == 'ztrk01') ||
-            user.adm_id == 'ztrk02' ||
-            user.adm_id == 'SeniorAdmin' ||
-            user.adm_id == 'Ceshi'
-          "
           to="/upload-QRCode"
         >派单管理
         </router-link>

@@ -11,6 +11,13 @@ module.exports = {
         target: 'http://139.224.134.138:8121',
         changeOrigin: true,
       },
+      '/mapapi': {
+        target: 'https://apis.map.qq.com',
+        changeOrigin: true,
+        pathRewrite: {
+          "^/mapapi": ""
+        }
+      },
     },
   },
   // publicPath: 'C:/Users/aprez/Desktop/ztrk-adm',

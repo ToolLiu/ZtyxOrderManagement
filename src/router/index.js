@@ -5,7 +5,6 @@ import WelcomePage from '@/components/WelcomePage.vue';
 import Login from "@/components/Login.vue";
 import OrderManagement from "@/components/OrderManagement.vue";
 import VehicleDispatch from "@/components/VehicleDispatch.vue";
-import CipherDispatch from "@/components/CipherDispatch.vue";
 import ClienteleManagement from "@/components/clientele/ClienteleManagement.vue"
 import UploadQRCode from "@/components/UploadQRCode.vue"
 import UnusualOrders from '@/components/UnusualOrders.vue'
@@ -52,12 +51,6 @@ const routes = [
     path: "/unusual-orders",
     name: "UnusualOrders",
     component: UnusualOrders,
-    props: true
-  },
-  {
-    path: "/cipher-dispatch",
-    name: "CipherDispatch",
-    component: CipherDispatch,
     props: true
   },
   {
