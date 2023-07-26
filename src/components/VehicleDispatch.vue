@@ -40,14 +40,17 @@
             <input type="text" id="cipher" v-model="form.cipher"/>
           </div>
           <div class="form-group">
-            <label for="position">*坐标(勿手动填写，请点击地图获取):</label>
+            <label for="position">*坐标(点击地图即可自动获取):</label>
             <input type="text" id="position" v-model="form.position" required/>
           </div>
           <button type="submit" class="submit-btn">添加到派单表</button>
         </form>
       </div>
       <div class="map-container">
-        <input type="text" class="map-search" /> <button>搜索</button>
+        <div class="serch-container">
+          <input type="text" class="map-search" v-model="address" /> 
+          <button @click="searchAddress" class="map-search-btn">搜索</button>
+        </div>
         <div id="map"></div>
       </div>
     </div>
@@ -68,8 +71,11 @@ export default {
         cost: "",
         position: "",
       },
+      myLat: "",
+      myLng: "",
       map: null,
       markerLayer: null,
+      address: "",
     };
   },
   methods: {
@@ -115,6 +121,32 @@ export default {
         },
       ]);
     },
+    searchAddress(){
+      let positionUrl = "/mapapi/ws/place/v1/search";
+      let keyword = this.address;
+      axios
+        .get(`${positionUrl}?key=4RXBZ-J72RU-6GOVE-GMNUS-5PS7S-NRFKB&keyword=${keyword}&boundary=nearby(${this.myLat},${this.myLng},5000,1)`)
+        .then((response) => {
+          let res = response.data.data;
+          let lat0 = res[0].location.lat;
+          let lng0 = res[0].location.lng;
+          let center = new TMap.LatLng(lat0, lng0);
+          this.map.panTo(center)
+          for(let i =0; i<res.length;i++){
+            console.log(res[i]);
+            this.markerLayer.remove(`${i}`)
+            this.markerLayer.add([
+              {
+                id: `${i}`,
+                position: new TMap.LatLng(res[i].location.lat, res[i].location.lng),
+              },
+            ]);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   },
   mounted() {
     // var center = new TMap.LatLng(22.597920,113.841059) //  固戍
@@ -122,9 +154,9 @@ export default {
     axios
       .get(`${positionUrl}?key=4RXBZ-J72RU-6GOVE-GMNUS-5PS7S-NRFKB`)
       .then((response) => {
-        let lat = response.data.result.location.lat;
-        let lng = response.data.result.location.lng;
-        const center = new TMap.LatLng(lat, lng);
+        this.myLat = response.data.result.location.lat;
+        this.myLng = response.data.result.location.lng;
+        const center = new TMap.LatLng(this.myLat, this.myLng);
         //定义map变量，调用 TMap.Map() 构造函数创建地图
         this.map = new TMap.Map(document.getElementById("map"), {
           center: center, //设置地图中心点坐标
@@ -136,26 +168,6 @@ export default {
         this.markerLayer = new TMap.MultiMarker({
           id: 'selectedPoint',
           map: this.map, //指定地图容器
-          //样式定义
-          // styles: {
-          //     //创建一个styleId为"myStyle"的样式（styles的子属性名即为styleId）
-          //     "myStyle": new TMap.MarkerStyle({
-          //         "width": 35,  // 点标记样式宽度（像素）
-          //         "height": 35, // 点标记样式高度（像素）
-          //         "src": '../img/marker.png',  //图片路径
-          //         //焦点在图片中的像素位置，一般大头针类似形式的图片以针尖位置做为焦点，圆形点以圆心位置为焦点
-          //         "anchor": { x: 16, y: 32 }
-          //     })
-          // },
-          //点标记数据数组
-          // geometries: [{
-          //     "id": "position",   //点标记唯一标识，后续如果有删除、修改位置等操作，都需要此id
-          //     // "styleId": 'myStyle',  //指定样式id
-          //     "position": new TMap.LatLng(22.542377,114.058451),  //点标记坐标位置
-          //     "properties": {//自定义属性
-          //         "title": "标记"
-          //     }
-          // }]
         });
         this.map.on("click", this.clickHandler);
       })
@@ -168,34 +180,30 @@ export default {
 
 <style scoped>
 .container {
+  width: 80vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%; /* 使容器高度占据整个视口 */
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.content-container {
+  display: flex;
+  justify-content: space-between;
   width: 100%;
 }
 
 .form-container {
-  display: flex;
-  justify-content: center;
-  width: 30%;
+  flex: 2;
+  padding: 20px;
 }
 
 form {
   width: 100%;
-  max-width: 500px;
-  padding: 20px;
-  border-radius: 5px;
-  background-color: #f2f2f2;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-h1 {
-  position: absolute;
-  top: 28px;
-  left: 230px;
-  margin-bottom: 20px;
 }
 
 .form-group {
@@ -209,51 +217,61 @@ label {
 }
 
 input {
-  width: 300px;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
+  padding: 10px;
   font-size: 16px;
-  outline: none;
-  background-color: #fff;
-  box-shadow: inset 0 0 0 1px #ccc;
-  transition: box-shadow 0.3s;
-}
-
-input:focus {
-  box-shadow: inset 0 0 0 1px #007bff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
 }
 
 .submit-btn {
   background-color: #007bff;
-  border: none;
-  border-radius: 4px;
   color: white;
+  padding: 10px;
+  border-radius: 4px;
+  border: none;
   cursor: pointer;
-  font-size: 16px;
-  padding: 10px 20px;
-  transition: background-color 0.3s;
+  width: 100%;
+  margin-top: 20px;
 }
 
-.submit-btn:hover {
-  background-color: #0056b3;
-}
 .map-container {
+  flex: 7;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-#map {
-  display: inline-block;
-  width: 80%;
-  height: 500px;
-  border: #0056b3 solid 2px;
-  border-radius: 7px;
-  overflow: hidden;
-}
-.content-container {
+
+.serch-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 80px; /* 这是元素之间的间距 */
+  width: 100%;
+  margin-bottom: 20px;
 }
+
 .map-search {
+  flex: 8;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.map-search-btn {
+  flex: 2;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+#map {
+  width: 100%;
+  height: 500px;
 }
 </style>
+

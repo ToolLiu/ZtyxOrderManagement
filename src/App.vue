@@ -173,7 +173,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .adm {
   display: flex;
   height: 100vh;
