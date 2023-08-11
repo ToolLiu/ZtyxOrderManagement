@@ -1,32 +1,34 @@
 <template>
-  <div class="login">
-    <h2>管理员登录</h2>
-    <form @submit.prevent="login" class="login-form">
-      <div class="form-group">
-        <label for="adm_id">管理员账号:</label>
-        <input
-          type="text"
-          id="adm_id"
-          v-model="adm_id"
-          required
-          class="form-control"
-        />
-      </div>
-      <div class="form-group">
-        <label for="adm_psw">管理员密码:</label>
-        <input
-          type="password"
-          id="adm_psw"
-          v-model="adm_psw"
-          required
-          class="form-control"
-        />
-      </div>
-      <div class="form-group">
-        <button type="submit" class="submit-btn">Login</button>
-      </div>
-    </form>
-    <div v-if="error" class="error">{{ error }}</div>
+  <div class="main-container">
+    <div class="login">
+      <h2>管理员登录</h2>
+      <form @submit.prevent="login" class="login-form">
+        <div class="form-group">
+          <label for="adm_id">管理员账号:</label>
+          <input
+            type="text"
+            id="adm_id"
+            v-model="adm_id"
+            required
+            class="form-control"
+          />
+        </div>
+        <div class="form-group">
+          <label for="adm_psw">管理员密码:</label>
+          <input
+            type="password"
+            id="adm_psw"
+            v-model="adm_psw"
+            required
+            class="form-control"
+          />
+        </div>
+        <div class="form-group">
+          <button type="submit" class="submit-btn">登录</button>
+        </div>
+      </form>
+      <div v-if="error" class="error">{{ error }}</div>
+    </div>
   </div>
 </template>
 
@@ -63,20 +65,31 @@ export default {
           this.error = "用户名或密码错误。";
         }
       } catch (error) {
-        this.error = "An error occurred while logging in.";
+        this.error = "登陆时出现错误：", error;
       }
     },
   },
 };
 </script>
 
-<style>
-.login {
+<style scoped>
+.main-container {
+  position: fixed;
+  margin: 0;
   width: 100%;
-  max-width: 400px;
-  margin: 50px auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(../img/background/loginBG.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.login {
+  width: 300px;
+  margin: 50px;
   padding: 20px;
-  background-color: #f2f2f2;
+  background-color: rgba(255, 255, 255, 0.521);
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   font-family: "Arial", sans-serif;

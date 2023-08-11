@@ -1,39 +1,47 @@
 <template>
   <div class="container">
     <h1>派单管理</h1>
-    <table>
-      <thead>
-        <th>派单编号</th>
-        <th>目的地</th>
-        <th>需要数量</th>
-        <th>运费</th>
-        <th>煤种</th>
-        <th>二维码</th>
-        <th>操作</th>
-      </thead>
-      <tbody v-for="coalmsg in coalmsgs" :key="coalmsg.id">
-        <td>{{ coalmsg.coal_id }}</td>
-        <td>{{ coalmsg.destination }}</td>
-        <td>{{ coalmsg.requirement }}</td>
-        <td>{{ coalmsg.cost }}</td>
-        <td>{{ coalmsg.coal_var }}</td>
-        <td>
-          <div>
-            <img
-              class="qrcode"
-              :src="getImageUrl(coalmsg.coal_QRCode)"
-              alt=""
-              @click="showImageDialog(getImageUrl(coalmsg.coal_QRCode))"
-            />
-          </div>
-        </td>
-        <td>
-          <div>
-            <button @click="uploadImage(coalmsg.coal_id)">上传二维码</button>
-          </div>
-        </td>
-      </tbody>
-    </table>
+    <div class="main-container">
+      <div class="del-all-orders">
+        <button @click="delAllOrders">删除所有用户订单</button>
+      </div>
+      <table>
+        <thead>
+          <th>派单编号</th>
+          <th>目的地</th>
+          <th>需要数量</th>
+          <th>运费</th>
+          <th>煤种</th>
+          <th>二维码</th>
+          <th>操作</th>
+        </thead>
+        <tbody v-for="coalmsg in coalmsgs" :key="coalmsg.id">
+          <td>{{ coalmsg.coal_id }}</td>
+          <td>{{ coalmsg.destination }}</td>
+          <td>{{ coalmsg.requirement }}</td>
+          <td>{{ coalmsg.cost }}</td>
+          <td>{{ coalmsg.coal_var }}</td>
+          <td>
+            <div>
+              <img
+                class="qrcode"
+                :src="getImageUrl(coalmsg.coal_QRCode)"
+                alt=""
+                @click="showImageDialog(getImageUrl(coalmsg.coal_QRCode))"
+              />
+            </div>
+          </td>
+          <td>
+            <div>
+              <button @click="uploadImage(coalmsg.coal_id)">上传二维码</button>
+            </div>
+            <div>
+              <button @click="delCoalMsg(coalmsg.coal_id)">取消派单</button>
+            </div>
+          </td>
+        </tbody>
+      </table>
+    </div>
     <div class="image-dialog" v-if="imageDialog.show">
       <div class="image-dialog-content">
         <button class="close-btn" @click="imageDialog.show = false">X</button>
@@ -44,6 +52,7 @@
 </template>
 
 <script>
+import Swal from "sweetalert2";
 import axios from "axios";
 
 export default {
@@ -109,35 +118,85 @@ export default {
         input.click();
       });
     },
+    delCoalMsg(coal_id) {
+      var result = confirm("确定要执行此操作吗？");
+      if (result) {
+        axios
+          .post(`${this.$base_url}/coal/delCoalMsg`, {
+            coal_id: coal_id,
+          })
+          .then(() => {
+            this.loadData()
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+    },
+    delAllOrders() {
+      var Response = prompt(
+        '危险操作提示！该操作将删除所有用户已下的订单，建议备份保存后再操作！\n确认删除请在下方输入框内输入"确认删除"！'
+      );
+      let message = "";
+      let icon = "";
+      if (Response === "确认删除") {
+        try {
+          axios.post(`${this.$base_url}/coal/delAllOrders`);
+          icon = "success";
+          message = "删除成功";
+        } catch (error) {
+          icon = "error";
+          message = "删除失败";
+          console.error("删除失败:", error);
+        }
+      } else {
+        // icon = "warning"
+        icon = "info";
+        message = "已取消操作";
+      }
+      Swal.fire({
+        icon: icon,
+        title: message,
+        showConfirmButton: false,
+        timer: 2000,
+      });
+    },
+    loadData() {
+      axios
+        .get(`${this.$base_url}/coal/admGetCoalMsg`)
+        .then((response) => {
+          this.coalmsgs = response.data;
+          this.loading = false;
+        })
+        .catch((error) => {
+          console.error(error);
+          this.loading = false;
+        });
+    },
   },
   mounted() {
-    axios
-      .get(`${this.$base_url}/coal/admGetCoalMsg`)
-      .then((response) => {
-        this.coalmsgs = response.data;
-        this.loading = false;
-      })
-      .catch((error) => {
-        console.error(error);
-        this.loading = false;
-      });
+    this.loadData();
   },
 };
 </script>
 
 <style scoped>
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
   font-family: Arial, sans-serif;
 }
-
+.main-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
 h1 {
   text-align: center;
   margin-bottom: 30px;
 }
 
 table {
+  margin-top: 30px;
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
@@ -145,7 +204,7 @@ table {
 
 th,
 td {
-  text-align: left;
+  text-align: center;
   padding: 8px;
   border-bottom: 1px solid #ddd;
   line-height: 1.5;
@@ -157,10 +216,6 @@ td {
 th {
   background-color: #f2f2f2;
   font-weight: bold;
-}
-
-tr:hover {
-  background-color: #f5f5f5;
 }
 
 .qrcode {
@@ -220,10 +275,25 @@ tr:hover {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: white;
+  background-color: rgb(71, 71, 71);
   border: none;
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
+}
+button {
+  margin-left: 10px;
+  height: 40px;
+  border: 2px solid black;
+  border-radius: 5px;
+  font-size: 18px;
+  background-color: #4caeaf;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+button:active {
+  background-color: #2d7779;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 </style>
