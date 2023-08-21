@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div class="main-container">
     <h1>订单管理</h1>
-    <h3>已完成检索，共{{ orders.length }}条数据</h3>
+    <CoalSelect v-on:update-orders="onUpdateOrders"></CoalSelect>
+    <h3>已完成检索，共{{ totalCount }}条数据</h3>
     <button @click="exportToExcel">导出excel</button>
     <table id="coal_table">
       <thead v-if="!loading">
@@ -76,6 +77,18 @@
         </tr>
       </tbody>
     </table>
+    <div class="pagination">
+      <a
+        v-for="pageNumber in pageCount"
+        :key="pageNumber"
+        class="page-number"
+        :class="getPageLinkClass(pageNumber)"
+        href="#"
+        @click="changePage(pageNumber)"
+      >
+        {{ pageNumber }}
+      </a>
+    </div>
 
     <div class="loading" v-if="loading">正在从数据库提取数据，请稍候...</div>
 
@@ -85,7 +98,6 @@
         <img :src="imageDialog.imageUrl" alt="" />
       </div>
     </div>
-    <CoalSelect v-on:update-orders="onUpdateOrders"></CoalSelect>
   </div>
 </template>
 
@@ -103,6 +115,9 @@ export default {
   data() {
     return {
       orders: [],
+      totalCount: null,
+      currentPage: 1, // 当前活动页码
+      pageStep: 150,
       imageDialog: {
         show: false,
         imageUrl: "",
@@ -111,6 +126,22 @@ export default {
       showAddCoalBillNum: false,
       selectedCoalOrderId: null,
     };
+  },
+  computed: {
+    // 计算属性
+    pageCount() {
+      return Math.ceil(this.totalCount / this.pageStep);
+    },
+    getPageLinkClass() {
+      return (pageNumber) => {
+        const isActive =
+          pageNumber === parseInt(sessionStorage.getItem("pageNumber"));
+        return {
+          "page-link": true,
+          active: isActive,
+        };
+      };
+    },
   },
   props: {
     url: {
@@ -122,10 +153,15 @@ export default {
   },
   methods: {
     loadOrders() {
+      let startIndex = sessionStorage.getItem("startIndex");
       axios
-        .get(`${this.$base_url}/coal/getCoalOrders`)
+        .get(
+          `${this.$base_url}/coal/getCoalOrders?startIndex=${startIndex}&pageStep=${this.pageStep}`
+        )
         .then((response) => {
-          this.orders = response.data;
+          // console.log(response);
+          this.orders = response.data.orders_data;
+          this.totalCount = response.data.total_count;
           // console.log('Weighing list:', this.orders[0].weighing_list);
           this.loading = false; // 数据加载完成，设置 loading 状态为 false
         })
@@ -269,14 +305,49 @@ export default {
       }
       return wbout;
     },
+    changePage(pageNumber) {
+      // console.log(pageNumber);
+      let startIndex = (pageNumber - 1) * this.pageStep;
+      axios
+        .get(
+          `${this.$base_url}/coal/getCoalOrders?startIndex=${startIndex}&pageStep=${this.pageStep}`
+        )
+        .then((response) => {
+          // console.log(response);
+          this.orders = response.data.orders_data;
+          this.$router.push({
+            path: "order-management",
+            query: {
+              startIndex: startIndex,
+              pageStep: this.pageStep
+            },
+          });
+
+          sessionStorage.setItem("startIndex", startIndex);
+          sessionStorage.setItem("pageNumber", pageNumber);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+  },
+  created() {
+    // this.currentPage = parseInt(this.$route.query.pageNumber);
+    // 获取数据并更新
+    this.loadOrders();
   },
   mounted() {
-    this.loadOrders();
+    // this.loadOrders();
   },
 };
 </script>
 
 <style scoped>
+.main-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 table {
   border-collapse: collapse;
   width: 100%;
@@ -388,5 +459,30 @@ img {
   font-size: 16px;
   border: none;
   border-bottom: 2px solid rgb(87, 87, 87); /* 只添加底部边框 */
+}
+.pagination{
+  margin-top: 20px;
+  display: flex;
+  width: 50%;
+  height: 30px;
+  justify-content: space-around;
+  align-items: center;
+}
+.page-number {
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  text-align: center;
+  text-decoration: none;  /* 取消下划线 */
+  border-radius: 3px;
+}
+.page-number:hover {
+  background-color: rgb(223, 223, 223);
+}
+.active {
+  color: #fff;
+  background-color: rgb(121, 121, 121);
+  /* border-color: #007bff; */
+  font-weight: bold;
 }
 </style>

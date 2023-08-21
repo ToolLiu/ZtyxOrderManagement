@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="select-container">
     <div class="select-by-des">
       <select v-model="selectedDestination">
         <option disabled value="">--请选择--</option>
@@ -119,20 +119,10 @@ export default {
 </script>
 
 <style scoped>
-.select-by-des {
-  position: absolute;
-  top: 50px;
-  left: 400px;
-}
-.select-by-coal-var {
-  position: absolute;
-  top: 50px;
-  left: 670px;
-}
-.select-by-license-plate {
-  position: absolute;
-  top: 50px;
-  left: 940px;
+.select-container{
+  display: flex;
+  width: 70%;
+  justify-content: space-around;
 }
 .input-license-plate {
   height: 30px;

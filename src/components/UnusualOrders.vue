@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>异常订单</h1>
+    <CoalSelect v-on:update-orders="onUpdateOrders"></CoalSelect>
     <h3>已完成检索，共{{ orders.length }}条数据</h3>
     <button @click="exportToExcel">导出excel</button>
     <table id="coal_table">
@@ -58,7 +59,6 @@
         <img :src="imageDialog.imageUrl" alt="" />
       </div>
     </div>
-    <CoalSelect v-on:update-orders="onUpdateOrders"></CoalSelect>
   </div>
 </template>
 
@@ -185,7 +185,10 @@ export default {
           })
           .catch((error) => {
             console.error(error);
-          });
+          })
+          .then(() => {
+            this.loadOrders();
+          })
       } else {
         // 用户点击了取消，不执行操作
       }
