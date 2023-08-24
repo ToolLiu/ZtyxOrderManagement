@@ -37,6 +37,7 @@
               v-model="order.u_license_plate"
               @change="updateLicensePlate(order, $event)"
             />
+            <button class="copy-btn" @click="copyLicensePlate(order.u_license_plate)">一键复制</button>
           </td>
           <td>{{ order.tel_num }}</td>
           <td>{{ order.destination }}</td>
@@ -106,6 +107,7 @@ import axios from "axios";
 import CoalSelect from "./CoalSelect.vue";
 import { saveAs } from "file-saver";
 import XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 export default {
   name: "OrderManagement",
@@ -307,6 +309,7 @@ export default {
     },
     changePage(pageNumber) {
       // console.log(pageNumber);
+      this.orders = []  //  初始化orders
       let startIndex = (pageNumber - 1) * this.pageStep;
       axios
         .get(
@@ -329,6 +332,21 @@ export default {
         .catch((error) => {
           console.error(error);
         });
+    },
+    copyLicensePlate(licensePlate){
+      var input = document.createElement('input') // 创建input对象
+      input.value = licensePlate // 设置复制内容
+      document.body.appendChild(input) // 添加临时实例
+      input.select() // 选择实例内容
+      document.execCommand('Copy') // 执行复制
+      document.body.removeChild(input) // 删除临时实例
+
+      Swal.fire({
+        icon: "success",
+        title: "复制成功",
+        showConfirmButton: false,
+        timer: 800,
+      });
     },
   },
   created() {
@@ -484,5 +502,8 @@ img {
   background-color: rgb(121, 121, 121);
   /* border-color: #007bff; */
   font-weight: bold;
+}
+.copy-btn{
+  margin-top: 10px;
 }
 </style>
