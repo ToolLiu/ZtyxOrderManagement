@@ -12,6 +12,7 @@
     "core-js": "^3.8.3",
     "file-saver": "^2.0.5",
     "FileSaver": "^0.10.0",
+    "jsencrypt": "^3.3.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.2.0",
     "sweetalert2": "^11.4.8",

@@ -1,7 +1,6 @@
 <template>
-  <div>
+  <div class="main-container">
     <h1>异常订单</h1>
-    <CoalSelect v-on:update-orders="onUpdateOrders"></CoalSelect>
     <h3>已完成检索，共{{ orders.length }}条数据</h3>
     <button @click="exportToExcel">导出excel</button>
     <table id="coal_table">
@@ -64,14 +63,12 @@
 
 <script>
 import axios from "axios";
-import CoalSelect from "./CoalSelect.vue";
 import { saveAs } from "file-saver";
 import XLSX from "xlsx";
 
 export default {
   name: "OrderManagement",
   components: {
-    CoalSelect,
   },
   data() {
     return {
@@ -244,6 +241,12 @@ export default {
 </script>
 
 <style scoped>
+.main-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 table {
   border-collapse: collapse;
   width: 100%;

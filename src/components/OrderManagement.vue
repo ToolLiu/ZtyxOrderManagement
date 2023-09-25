@@ -15,7 +15,6 @@
           <th class="coal_var">煤种</th>
           <th class="coal_bill_number">提煤单号</th>
           <th class="order_time">下单时间</th>
-          <th class="weighing_list">磅单</th>
           <th class="freight_rate_list">运费单</th>
           <th class="list_operate">操作</th>
         </tr>
@@ -52,15 +51,6 @@
             />
           </td>
           <td>{{ formatDate(order.order_time) }}</td>
-          <td>
-            <div class="image-container">
-              <img
-                :src="getImageUrl(order.weighing_list)"
-                alt=""
-                @click="showImageDialog(getImageUrl(order.weighing_list))"
-              />
-            </div>
-          </td>
           <td>
             <div class="image-container">
               <img

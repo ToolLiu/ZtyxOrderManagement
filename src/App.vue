@@ -189,7 +189,7 @@ export default {
   left: 0;
   background-color: #2c3e50;
   padding: 20px;
-  width: 150px;
+  width: 8%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -213,8 +213,9 @@ export default {
 }
 
 #content {
-  margin-left: 200px;
-  padding: 20px;
+  position: absolute;
+  width: 85%;
+  margin-left: 12%;
 }
 .logout-btn {
   background-color: #e74c3c;
